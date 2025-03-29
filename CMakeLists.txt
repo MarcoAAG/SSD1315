@@ -19,11 +19,14 @@ set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/stm32l0xx_it.c          # Interrupt handler
     ${CMAKE_CURRENT_SOURCE_DIR}/src/system_stm32l0xx.c      # System initialization
     ${CMAKE_CURRENT_SOURCE_DIR}/src/startup.c               # Startup code
+    ${CMAKE_CURRENT_SOURCE_DIR}/stm32-ssd1315/ssd1315_reg.c           # ssd1315 source file
+    ${CMAKE_CURRENT_SOURCE_DIR}/stm32-ssd1315/ssd1315.c               # ssd1315 source file
 )
 
 # Include directories
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include  # Header files
+    ${CMAKE_CURRENT_SOURCE_DIR}/stm32-ssd1315  # Header files SSD1315
     ${CMAKE_CURRENT_SOURCE_DIR}/conf     # Configuration files
 )
 

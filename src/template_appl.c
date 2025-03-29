@@ -1,4 +1,5 @@
 #include <stm32l0xx_hal.h>
+#include <ssd1315.h>
 
 #ifdef __cplusplus
 extern "C" {

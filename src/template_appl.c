@@ -1,5 +1,6 @@
 #include <ssd1315.h>
 #include <stm32l0xx_hal.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -163,6 +164,8 @@ static int32_t SSD1315_Initialize(void)
     while(1);
   }
 
+  SSD1315_DisplayOff(&SSD1315_Obj);
+
   // Encendido de la pantalla
   if(SSD1315_DisplayOn(&SSD1315_Obj) != SSD1315_OK)
   {
@@ -180,7 +183,18 @@ static int32_t SSD1315_DeInitialize(void)
 
 static int32_t SSD1315_WriteCommand(uint16_t Addr, uint8_t* pData, uint16_t Length)
 {
-  if(HAL_I2C_Master_Transmit(&t_iicHandle, (uint16_t)I2C_ADDRESS << 1, pData, Length, 1000000) == HAL_OK)
+  uint8_t u_buffer[Length + 1]; 
+  if(Length > 1)
+  {
+    u_buffer[0] = 0x40;                 
+  }
+  else
+  {
+    u_buffer[0] = 0;                 
+  }      
+  memcpy(&u_buffer[1], pData, Length); 
+
+  if(HAL_I2C_Master_Transmit(&t_iicHandle, (uint16_t)I2C_ADDRESS << 1, u_buffer, Length+1, 1000000) == HAL_OK)
   {
     return 0;
   }

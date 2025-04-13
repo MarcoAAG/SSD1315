@@ -21,6 +21,7 @@ set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/startup.c               # Startup code
     ${CMAKE_CURRENT_SOURCE_DIR}/stm32-ssd1315/ssd1315_reg.c           # ssd1315 source file
     ${CMAKE_CURRENT_SOURCE_DIR}/stm32-ssd1315/ssd1315.c               # ssd1315 source file
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ssd1315_service.c               # ssd1315 service layer
 )
 
 # Include directories

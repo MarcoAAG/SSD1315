@@ -1,4 +1,5 @@
 #include <ssd1315.h>
+#include <ssd1315_service.h>
 #include <stm32l0xx_hal.h>
 #include <string.h>
 
@@ -66,8 +67,10 @@ int main()
     while(1); // Error
   }
 
-  DrawCircle(centerX, centerY, radius);
-
+  // DrawCircle(centerX, centerY, radius);
+  // SSD1315_FillRect(&SSD1315_Obj,14,0,100,64,SSD1315_COLOR_WHITE);
+  char character = 'B';
+  SSD1315_DrawChar(&SSD1315_Obj, 10, 10, character);
   SSD1315_Refresh(&SSD1315_Obj);
 
   // Infinite loop
@@ -183,18 +186,18 @@ static int32_t SSD1315_DeInitialize(void)
 
 static int32_t SSD1315_WriteCommand(uint16_t Addr, uint8_t* pData, uint16_t Length)
 {
-  uint8_t u_buffer[Length + 1]; 
+  uint8_t u_buffer[Length + 1];
   if(Length > 1)
   {
-    u_buffer[0] = 0x40;                 
+    u_buffer[0] = 0x40;
   }
   else
   {
-    u_buffer[0] = 0;                 
-  }      
-  memcpy(&u_buffer[1], pData, Length); 
+    u_buffer[0] = 0;
+  }
+  memcpy(&u_buffer[1], pData, Length);
 
-  if(HAL_I2C_Master_Transmit(&t_iicHandle, (uint16_t)I2C_ADDRESS << 1, u_buffer, Length+1, 1000000) == HAL_OK)
+  if(HAL_I2C_Master_Transmit(&t_iicHandle, (uint16_t)I2C_ADDRESS << 1, u_buffer, Length + 1, 1000000) == HAL_OK)
   {
     return 0;
   }

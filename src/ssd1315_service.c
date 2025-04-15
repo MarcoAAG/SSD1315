@@ -9,7 +9,6 @@
  *
  *********************************************************************************************************************/
 
-#include <font.h>
 #include <ssd1315_service.h>
 #include <stdint.h>
 
@@ -17,27 +16,40 @@
 extern "C" {
 #endif
 
-void SSD1315_DrawChar(SSD1315_Object_t* pObj, uint8_t x, uint8_t y, char c)
+void SSD1315_DrawChar_Generic(SSD1315_Object_t* pObj, uint8_t x, uint8_t y, char c, const Font_t* font)
 {
-  if(c < 'A' || c > 'Z')
-    return; // solo mayúsculas
+  uint16_t char_index = (c - 32) * font->char_height;  // Suponemos que el primer carácter es ' '
+  const uint16_t* bitmap = (const uint16_t*)font->data + char_index;
 
-  const uint8_t* bitmap = font_8x11_AZ[c - 'A'];
-  for(uint8_t row = 0; row < 11; row++)
+  for (uint8_t row = 0; row < font->char_height; row++)
   {
-    for(uint8_t col = 0; col < 8; col++)
+    uint16_t row_data = bitmap[row];
+
+    for (uint8_t col = 0; col < font->char_width; col++)
     {
-      if(bitmap[row] & (1 << (7 - col)))
+      if (row_data & (1 << (15 - col)))  // MSB first
       {
         SSD1315_SetPixel(pObj, x + col, y + row, SSD1315_COLOR_WHITE);
       }
       else
       {
-        SSD1315_SetPixel(pObj, x + col, y + row, SSD1315_COLOR_BLACK); // opcional
+        SSD1315_SetPixel(pObj, x + col, y + row, SSD1315_COLOR_BLACK);
       }
     }
   }
 }
+
+void SSD1315_DrawString_Generic(SSD1315_Object_t* pObj, uint8_t x, uint8_t y, const char* str, const Font_t* font)
+{
+  uint8_t offset_x = 0;
+
+  while (*str) {
+    SSD1315_DrawChar_Generic(pObj, x + offset_x, y, *str, font);
+    offset_x += font->char_width + 2; // Mueve el puntero x para el siguiente carácter
+    str++;
+  }
+}
+
 
 #ifdef __cplusplus
 }

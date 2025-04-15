@@ -69,9 +69,17 @@ int main()
 
   // DrawCircle(centerX, centerY, radius);
   // SSD1315_FillRect(&SSD1315_Obj,14,0,100,64,SSD1315_COLOR_WHITE);
-  char character = 'B';
-  SSD1315_DrawChar(&SSD1315_Obj, 10, 10, character);
+  char character = 'A';
+  // SSD1315_DrawChar(&SSD1315_Obj, 10, 10, character);
+  Font_t myFont;
+  myFont.data = FONT16x26;
+  myFont.char_height = 26;
+  myFont.char_width = 16;
+  // SSD1315_DrawChar_7x10(&SSD1315_Obj, 10, 10, character);
+  // SSD1315_DrawChar_Generic(&SSD1315_Obj, 20, 20, character, &myFont);
+  SSD1315_DrawString_Generic(&SSD1315_Obj, 20, 20, "PAU", &myFont);
   SSD1315_Refresh(&SSD1315_Obj);
+
 
   // Infinite loop
   while(1)

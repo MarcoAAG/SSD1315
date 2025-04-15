@@ -19,9 +19,10 @@ set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/stm32l0xx_it.c          # Interrupt handler
     ${CMAKE_CURRENT_SOURCE_DIR}/src/system_stm32l0xx.c      # System initialization
     ${CMAKE_CURRENT_SOURCE_DIR}/src/startup.c               # Startup code
-    ${CMAKE_CURRENT_SOURCE_DIR}/stm32-ssd1315/ssd1315_reg.c           # ssd1315 source file
-    ${CMAKE_CURRENT_SOURCE_DIR}/stm32-ssd1315/ssd1315.c               # ssd1315 source file
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ssd1315_service.c               # ssd1315 service layer
+    ${CMAKE_CURRENT_SOURCE_DIR}/stm32-ssd1315/ssd1315_reg.c # ssd1315 source file
+    ${CMAKE_CURRENT_SOURCE_DIR}/stm32-ssd1315/ssd1315.c     # ssd1315 source file
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ssd1315_service.c       # ssd1315 service layer
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/font.c                  # font
 )
 
 # Include directories

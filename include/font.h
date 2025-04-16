@@ -18,17 +18,14 @@
 extern "C" {
 #endif
 
-typedef struct {
-    const void* data;         // font
-    uint8_t char_width;       
-    uint8_t char_height;       
-  } Font_t;
+typedef struct
+{
+  const void* p_data; // font
+  uint8_t     u_charWidth;
+  uint8_t     u_charHeight;
+} Font_t;
 
-// extern const uint16_t FONT7x10[];
-// extern const uint16_t FONT11x18[];
-extern const uint16_t FONT16x26[];
-
-
+extern const uint32_t FONT25x57[];
 
 #ifdef __cplusplus
 }

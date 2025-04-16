@@ -11,45 +11,55 @@
 
 #include <ssd1315_service.h>
 #include <stdint.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void SSD1315_DrawChar_Generic(SSD1315_Object_t* pObj, uint8_t x, uint8_t y, char c, const Font_t* font)
+void SSD1315_v_DrawChar(SSD1315_Object_t* t_pObj, uint8_t u_posX, uint8_t u_posY, char c_char, const Font_t* t_font)
 {
-  uint16_t char_index = (c - 32) * font->char_height;  // Suponemos que el primer carácter es ' '
-  const uint16_t* bitmap = (const uint16_t*)font->data + char_index;
+  const char s_VALIDCHARS[] = "%0123456789";
 
-  for (uint8_t row = 0; row < font->char_height; row++)
+  // Verify if is valid char
+  const char* s_CHARPOS = strchr(s_VALIDCHARS, c_char);
+
+  // Get index based on char position
+  uint32_t char_index = (s_CHARPOS - s_VALIDCHARS) * t_font->u_charHeight;
+
+  // Get char's bitmap
+  const uint32_t* p_bitmap = (const uint32_t*)t_font->p_data + char_index;
+
+  for(uint8_t u_row = 0; u_row < t_font->u_charHeight; u_row++)
   {
-    uint16_t row_data = bitmap[row];
+    uint32_t u_rowData = p_bitmap[u_row];
 
-    for (uint8_t col = 0; col < font->char_width; col++)
+    for(uint8_t u_col = 0; u_col < t_font->u_charWidth; u_col++)
     {
-      if (row_data & (1 << (15 - col)))  // MSB first
+      if(u_rowData & (1 << (31 - u_col))) // MSB first
       {
-        SSD1315_SetPixel(pObj, x + col, y + row, SSD1315_COLOR_WHITE);
+        SSD1315_SetPixel(t_pObj, u_posX + u_col, u_posY + u_row, SSD1315_COLOR_WHITE);
       }
       else
       {
-        SSD1315_SetPixel(pObj, x + col, y + row, SSD1315_COLOR_BLACK);
+        SSD1315_SetPixel(t_pObj, u_posX + u_col, u_posY + u_row, SSD1315_COLOR_BLACK);
       }
     }
   }
 }
 
-void SSD1315_DrawString_Generic(SSD1315_Object_t* pObj, uint8_t x, uint8_t y, const char* str, const Font_t* font)
+void SSD1315_v_DrawString(SSD1315_Object_t* p_obj, uint8_t u_posX, uint8_t u_posY, const char* p_str, const Font_t* t_font)
 {
-  uint8_t offset_x = 0;
+  uint8_t u_offsetX  = 0;
+  uint8_t u_tracking = 2; // 2 pixels of space between chars
 
-  while (*str) {
-    SSD1315_DrawChar_Generic(pObj, x + offset_x, y, *str, font);
-    offset_x += font->char_width + 2; // Mueve el puntero x para el siguiente carácter
-    str++;
+  while(*p_str)
+  {
+    SSD1315_v_DrawChar(p_obj, u_posX + u_offsetX, u_posY, *p_str, t_font);
+    u_offsetX += t_font->u_charWidth + u_tracking; // Go to next char
+    p_str++;
   }
 }
-
 
 #ifdef __cplusplus
 }

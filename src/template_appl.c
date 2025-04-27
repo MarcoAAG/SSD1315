@@ -61,7 +61,7 @@ int main()
   myFont.p_data       = FONT25x57;
   myFont.u_charHeight = 57;
   myFont.u_charWidth  = 25;
-  SSD1315_v_DrawString(&SSD1315_Obj, 20, 10, "5%", &myFont);
+  SSD1315_v_DrawString(&SSD1315_Obj, 20, 10, "20%", &myFont);
   SSD1315_Refresh(&SSD1315_Obj);
 
   // Infinite loop
@@ -123,22 +123,15 @@ void SystemClock_Config(void)
 
 static int32_t SSD1315_Initialize(void)
 {
-  // Inicializar pantalla
-  if(SSD1315_Init(&SSD1315_Obj, SSD1315_FORMAT_DEFAULT, SSD1315_ORIENTATION_LANDSCAPE) != SSD1315_OK)
+  HAL_StatusTypeDef u_iicStat = 0;
+
+  u_iicStat = SSD1315_Init(&SSD1315_Obj, SSD1315_FORMAT_DEFAULT, SSD1315_ORIENTATION_LANDSCAPE);
+  if(u_iicStat == SSD1315_OK)
   {
-    while(1);
+    u_iicStat = SSD1315_DisplayOn(&SSD1315_Obj);
   }
 
-  SSD1315_DisplayOff(&SSD1315_Obj);
-
-  // Encendido de la pantalla
-  if(SSD1315_DisplayOn(&SSD1315_Obj) != SSD1315_OK)
-  {
-    // Manejo de error
-    while(1);
-  }
-
-  return 0;
+  return u_iicStat;
 }
 
 static int32_t SSD1315_DeInitialize(void)
@@ -148,27 +141,29 @@ static int32_t SSD1315_DeInitialize(void)
 
 static int32_t SSD1315_WriteCommand(uint16_t Addr, uint8_t* pData, uint16_t Length)
 {
-  uint8_t u_buffer[Length + 1];
+  HAL_StatusTypeDef u_iicStat    = 0;
+  const uint32_t    u_timeoutIIC = 1000000;
+  uint8_t           u_buffer[Length + 1];
+
   if(Length > 1)
   {
-    u_buffer[0] = 0x40;
+    u_buffer[0] = 0x40; // Data
   }
   else
   {
-    u_buffer[0] = 0;
+    u_buffer[0] = 0; // Control
   }
-  memcpy(&u_buffer[1], pData, Length);
 
-  if(HAL_I2C_Master_Transmit(&t_iicHandle, (uint16_t)I2C_ADDRESS << 1, u_buffer, Length + 1, 1000000) == HAL_OK)
-  {
-    return 0;
-  }
-  return -1;
+  memcpy(&u_buffer[1], pData, Length); // Add register before payload
+
+  u_iicStat = HAL_I2C_Master_Transmit(&t_iicHandle, (uint16_t)I2C_ADDRESS << 1, u_buffer, Length + 1, u_timeoutIIC);
+
+  return u_iicStat;
 }
 
 static int32_t SSD1315_ReadData(uint16_t Addr, uint8_t* pData, uint16_t Length)
 {
-  return -1; // No aplicable para SSD1315 en la mayoría de los casos
+  return -1;
 }
 
 static int32_t SSD1315_GetTick(void)

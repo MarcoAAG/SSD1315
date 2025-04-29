@@ -20,6 +20,8 @@
 extern "C" {
 #endif
 
+void SSD1315_v_Init(void);
+void SSD1315_v_PrintString(void);
 void SSD1315_v_DrawChar(SSD1315_Object_t* t_pObj, uint8_t u_posX, uint8_t u_posY, char c_char, const Font_t* t_font);
 void SSD1315_v_DrawString(SSD1315_Object_t* p_obj, uint8_t u_posX, uint8_t u_posY, const char* p_str, const Font_t* t_font);
 

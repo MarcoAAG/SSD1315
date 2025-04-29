@@ -12,10 +12,116 @@
 #include <ssd1315_service.h>
 #include <stdint.h>
 #include <string.h>
+#include <stm32l0xx_hal.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+static int32_t SSD1315_Initialize(void);
+static int32_t SSD1315_DeInitialize(void);
+static int32_t SSD1315_WriteCommand(uint16_t Addr, uint8_t* pData, uint16_t Length);
+static int32_t SSD1315_ReadData(uint16_t Addr, uint8_t* pData, uint16_t Length);
+static int32_t SSD1315_GetTick(void);
+
+SSD1315_IO_t SSD1315_IO = {
+  .Init     = SSD1315_Initialize,
+  .DeInit   = SSD1315_DeInitialize,
+  .WriteReg = SSD1315_WriteCommand,
+  .ReadReg  = SSD1315_ReadData,
+  .GetTick  = SSD1315_GetTick,
+};
+
+// I2C TIMING is calculated in case of the I2C Clock source is the SYSCLK = 32 MHz
+#define I2C_TIMING  268501508U // 100 kHz with analog Filter ON, Rise Time 1000ns, Fall Time 1000ns
+#define I2C_ADDRESS 0x3C
+#define I2Cx        I2C1
+
+SSD1315_Object_t  SSD1315_Obj;
+I2C_HandleTypeDef t_iicHandle;
+
+void SSD1315_v_Init(void)
+{
+  t_iicHandle.Instance              = I2Cx;
+  t_iicHandle.Init.Timing           = I2C_TIMING;
+  t_iicHandle.Init.OwnAddress1      = I2C_ADDRESS;
+  t_iicHandle.Init.AddressingMode   = I2C_ADDRESSINGMODE_7BIT;
+  t_iicHandle.Init.DualAddressMode  = I2C_DUALADDRESS_DISABLE;
+  t_iicHandle.Init.OwnAddress2      = 0xFF;
+  t_iicHandle.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+  t_iicHandle.Init.GeneralCallMode  = I2C_GENERALCALL_DISABLE;
+  t_iicHandle.Init.NoStretchMode    = I2C_NOSTRETCH_DISABLE;
+
+  HAL_I2C_Init(&t_iicHandle);
+
+  // Enable the Analog I2C Filter
+  HAL_I2CEx_ConfigAnalogFilter(&t_iicHandle, I2C_ANALOGFILTER_ENABLE);
+  if(SSD1315_RegisterBusIO(&SSD1315_Obj, &SSD1315_IO) != SSD1315_OK)
+  {
+    while(1); // Error
+  }
+  SSD1315_Refresh(&SSD1315_Obj);  
+}
+
+void SSD1315_v_PrintString(void)
+{
+  Font_t myFont;
+  myFont.p_data       = FONT25x57;
+  myFont.u_charHeight = 57;
+  myFont.u_charWidth  = 25;
+  SSD1315_v_DrawString(&SSD1315_Obj, 20, 10, "43%", &myFont);
+  SSD1315_Refresh(&SSD1315_Obj);  
+}
+
+static int32_t SSD1315_Initialize(void)
+{
+  uint8_t u_iicStat = 0;
+
+  u_iicStat = SSD1315_Init(&SSD1315_Obj, SSD1315_FORMAT_DEFAULT, SSD1315_ORIENTATION_LANDSCAPE);
+  if(u_iicStat == SSD1315_OK)
+  {
+    u_iicStat = SSD1315_DisplayOn(&SSD1315_Obj);
+  }
+
+  return u_iicStat;
+}
+
+static int32_t SSD1315_DeInitialize(void)
+{
+  return 0;
+}
+
+static int32_t SSD1315_WriteCommand(uint16_t Addr, uint8_t* pData, uint16_t Length)
+{
+  uint8_t u_iicStat    = 0;
+  const uint32_t    u_timeoutIIC = 1000000;
+  uint8_t           u_buffer[Length + 1];
+
+  if(Length > 1)
+  {
+    u_buffer[0] = 0x40; // Data
+  }
+  else
+  {
+    u_buffer[0] = 0; // Control
+  }
+
+  memcpy(&u_buffer[1], pData, Length); // Add register before payload
+
+  u_iicStat = HAL_I2C_Master_Transmit(&t_iicHandle, (uint16_t)I2C_ADDRESS << 1, u_buffer, Length + 1, u_timeoutIIC);
+
+  return u_iicStat;
+}
+
+static int32_t SSD1315_ReadData(uint16_t Addr, uint8_t* pData, uint16_t Length)
+{
+  return -1;
+}
+
+static int32_t SSD1315_GetTick(void)
+{
+  return HAL_GetTick();
+}
 
 void SSD1315_v_DrawChar(SSD1315_Object_t* t_pObj, uint8_t u_posX, uint8_t u_posY, char c_char, const Font_t* t_font)
 {

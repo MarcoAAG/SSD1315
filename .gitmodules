@@ -1,3 +1,6 @@
 [submodule "STM32L0xx_HAL_ST"]
 	path = STM32L0xx_HAL_ST
 	url = git@github.com:STM32-Libraries/STM32L0xx_HAL_ST.git
+[submodule "stm32-ssd1315"]
+	path = stm32-ssd1315
+	url = https://github.com/STMicroelectronics/stm32-ssd1315.git

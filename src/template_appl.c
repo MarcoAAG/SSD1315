@@ -1,3 +1,4 @@
+#include <ssd1315_service.h>
 #include <stm32l0xx_hal.h>
 
 #ifdef __cplusplus
@@ -12,6 +13,9 @@ int main()
 
   // Configure the system clock to 2 MHz
   SystemClock_Config();
+
+  SSD1315_v_Init();
+  SSD1315_v_PrintString();
 
   // Infinite loop
   while(1)
